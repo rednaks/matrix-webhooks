@@ -1,0 +1,138 @@
+{% extends 'home/base.html' %}
+{% load bootstrap5 %}
+{% load static %}
+{% block content %}
+<style>
+    .item {
+        margin: 10px;
+
+    }
+    
+    .card {
+      border: none;
+    }
+
+    .d-flex {
+      flex-flow: row wrap;
+    }
+
+    .btn-bd-hero-login {
+        font-weight: 600;
+        color: #fff;
+        border-color: #7952b3;
+        background-color: #7952b3;
+    }
+
+/*******/
+    .copy-code-button {
+    color: #272822;
+    background-color: #FFF;
+    border-color: #272822;
+    border: 2px solid;
+    border-radius: 3px 3px 0px 0px;
+
+    /* right-align */
+    display: block;
+    margin-left: auto;
+    margin-right: 0;
+
+    margin-bottom: -2px;
+    padding: 3px 8px;
+    font-size: 0.8em;
+}
+
+.hightlight {
+  background-color: #f8f9fa;
+}
+.highlight pre {
+  padding: 0;
+  margin-top: .65rem;
+  margin-bottom: .65rem;
+  white-space: pre;
+  background-color: transparent;
+  border: 0;
+}
+
+.copy-code-button:hover {
+    cursor: pointer;
+    background-color: #F2F2F2;
+}
+
+.copy-code-button:focus {
+    background-color: #E6E6E6;
+    outline: 0;
+}
+
+.copy-code-button:active {
+    background-color: #D9D9D9;
+}
+
+.highlight pre {
+    /* Avoid pushing up the copy buttons. */
+    margin: 0;
+}
+
+
+</style>
+{% if user.is_authenticated %}
+<div class="px-4 py-5 my-5 text-center">
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">your personal webhook urls, please keep them secret</p>
+    </div>
+    <div class="col-lg-9 mx-auto">
+    {% for notify in notify_urls %}
+      <div class="hightlight">
+        <code>
+          {{ notify.url }}
+        </code>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold">Matrix-Webhooks</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">Low efforts discord-compatible webhooks for your Matrix rooms</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            <a class="btn btn-bd-hero-login d-lg-inline-block my-2 my-md-0 ms-md-3 mb-3 me-md-3"
+               data-bs-toggle="modal" data-bs-target="#loginModal">
+                Sign-in
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+<script type="text/javascript">
+  document.querySelectorAll('code').forEach(function (codeBlock) {
+    var button = document.createElement('button');
+    button.className = 'copy-code-button';
+    button.type = 'button';
+    button.innerText = 'Copy';
+
+    button.addEventListener('click', function () {
+      navigator.clipboard.writeText(codeBlock.innerText).then(function () {
+          /* Chrome doesn't seem to blur automatically,
+             leaving the button in a focused state. */
+          button.blur();
+
+          button.innerText = 'Copied!';
+
+          setTimeout(function () {
+              button.innerText = 'Copy';
+          }, 2000);
+      }, function (error) {
+          button.innerText = 'Error';
+      });
+    });
+    var code = codeBlock.parentNode;
+    if (code.parentNode.classList.contains('highlight')) {
+        var highlight = code.parentNode;
+        highlight.parentNode.insertBefore(button, highlight);
+    } else {
+        code.parentNode.insertBefore(button, code);
+    }
+});
+
+</script>
+{% endblock %}
