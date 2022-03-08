@@ -23,6 +23,7 @@ django-bootstrap-v5 = "^1.0.11"
 Django = "^4.0.3"
 requests = "^2.27.1"
 django-constance = {extras = ["database"], version = "^2.8.0"}
+matrix-synapse = "^1.54.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
