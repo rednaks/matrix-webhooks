@@ -17,7 +17,7 @@ pantalaimon = "^0.10.4"
 django-ninja = "^0.17.0"
 django-environ = "^0.8.1"
 django-sesame = "^2.4"
-uvicorn = "^0.17.5"
+uvicorn = {extras = ["standard"], version = "^0.17.5"}
 django-bootstrap-v5 = "^1.0.11"
 Django = "^4.0.3"
 requests = "^2.27.1"
