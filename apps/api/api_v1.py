@@ -44,6 +44,7 @@ def bot_error_handler(request, _):
         status=503
     )
 
+
 @api.exception_handler(RateLimitException)
 def ratelimit_exception_handler(request, _):
     return api.create_response(
@@ -55,8 +56,8 @@ def ratelimit_exception_handler(request, _):
         status=420
     )
 
-@api.post('/notify/{user_token}/{room_id}/{source}', url_name='notify')
 @ratelimit
+@api.post('/notify/{user_token}/{room_id}/{source}', url_name='notify')
 def notify(request, user_token: str, room_id: str, source: Source,
            data: WebhookPayload):
     payload = json.loads(request.body)

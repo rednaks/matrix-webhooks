@@ -8,8 +8,7 @@ class RateLimitException(Exception):
 def ratelimit(func):
     @wraps(func)
     def wrapper(request, *a, **kw):
-        print(a)
-        print(kw)
+        print(f"token : {kw['user_token']}")
         if False:
             raise RateLimitException("Too Many Requests")
 
