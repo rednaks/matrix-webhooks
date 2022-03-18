@@ -1,4 +1,6 @@
 from ninja import NinjaAPI, Schema
+
+from apps.api.decorators import ratelimit, RateLimitException
 from apps.api.security import APIKeyPath
 from apps.handlers import get_handler, AvailableSources
 from apps.matrix import bot
@@ -42,8 +44,19 @@ def bot_error_handler(request, _):
         status=503
     )
 
+@api.exception_handler(RateLimitException)
+def ratelimit_exception_handler(request, _):
+    return api.create_response(
+        request,
+        {
+            'status': 'error',
+            'msg': 'too many requests'
+        },
+        status=420
+    )
 
 @api.post('/notify/{user_token}/{room_id}/{source}', url_name='notify')
+@ratelimit
 def notify(request, user_token: str, room_id: str, source: Source,
            data: WebhookPayload):
     payload = json.loads(request.body)
