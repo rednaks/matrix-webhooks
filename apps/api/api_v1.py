@@ -34,12 +34,13 @@ def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any],
 
 
 @api.exception_handler(bot.BotAPIException)
-def bot_error_handler(request, _):
+def bot_error_handler(request, exc):
     return api.create_response(
         request,
         {
             'status': 'error',
-            'msg': 'matrix api error'
+            'msg': 'matrix api error',
+            'details': exc.message
         },
         status=503
     )
