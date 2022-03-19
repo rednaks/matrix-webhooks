@@ -103,6 +103,16 @@ DATABASES = {
     }
 }
 
+REDIS_HOST = env("REDIS_HOST")
+REDIS_PORT = env("REDIS_PORT")
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}',
+    }
+}
+
 TEST_ENV = False
 if TEST_ENV:
     DATABASES = {
@@ -176,3 +186,4 @@ EMAIL_USE_SSL = True
 # custom settings
 from MatrixWebhooks.custom_settings import * # noqa
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+CONSTANCE_DATABASE_CACHE_BACKEND = 'default'

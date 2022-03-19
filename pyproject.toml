@@ -25,6 +25,7 @@ django-constance = {extras = ["database"], version = "^2.8.0"}
 matrix-synapse = {extras = ["postgres"], version = "^1.54.0"}
 python-dotenv = "^0.19.2"
 psycopg2-binary = "^2.9.3"
+redis = "^4.1.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0.1"
