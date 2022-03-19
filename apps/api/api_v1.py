@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from ninja import NinjaAPI, Schema
 
 from apps.api.decorators import ratelimit, RateLimitException
@@ -20,10 +21,10 @@ class WebhookPayload(Schema):
     ...
 
 
-def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any],
+def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: HttpRequest = None,
                     source: AvailableSources = AvailableSources.DISCORD):
     handler = get_handler(source.name)()
-    payload = handler.parse(webhook_payload)
+    payload = handler.parse(webhook_payload, headers=request.headers)
 
     config = get_matrix_config()
     bot.send(config, room_id, payload)
@@ -63,7 +64,7 @@ def notify(request, user_token: str, room_id: str, source: Source,
            data: WebhookPayload):
     payload = json.loads(request.body)
 
-    return _handle_webhook(room_id, payload, source.source)
+    return _handle_webhook(room_id, payload, request, source.source)
 
 
 @api.post('/notify/{user_token}/{room_id}/', url_name='notify')

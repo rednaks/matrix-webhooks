@@ -31,7 +31,7 @@ class GitlabWebhookHandler(GenericHandler):
         commits = data['commits']
         number_of_commits = len(commits)
         # TODO: link to commit
-        description = "\n".join([f"`{commit['id'][:7]}` {commit['message']}" for commit in commits[:10]])
+        description = "<br/>".join([f"`{commit['id'][:7]}` {commit['message']}" for commit in commits[:10]])
 
         return Embed(
             author=EmbedAuthor(name=data.get('user_name', data['user_username'])),
@@ -58,7 +58,7 @@ class GitlabWebhookHandler(GenericHandler):
 
         return Embed(
             author=EmbedAuthor(name=user.get('name', user['username'])),
-            title=f"[{repo}] Issue opened: #{issue_attributes['iid']} {issue_attributes['title']}",
+            title=f"[{repo}] Issue {action}: #{issue_attributes['iid']} {issue_attributes['title']}",
             description=description,
             url=issue_attributes['url'],
             color=_ACTION_COLOR.get(action, '0')
