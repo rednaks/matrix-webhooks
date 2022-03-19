@@ -87,6 +87,7 @@ async def send(config: MatrixConfig, room_id: str, payload: DiscordWebhookHandle
 async def login(config: MatrixConfig) -> None:
     client = await get_client(config)
     response = await client.login(password=config.password)
+    await client.api.session.close()
     return response
 
 
