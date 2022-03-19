@@ -10,7 +10,7 @@ class GithubWebhookHandler(GenericHandler):
         self.__EVENT_TO_BUILDER__ = {
             'push': GithubWebhookHandler._build_push,
             'issues': GithubWebhookHandler._build_issue,
-            'note': GithubWebhookHandler._build_comment,
+            'issue_comment': GithubWebhookHandler._build_comment,
         }
 
     def parse(self, payload: Dict, **kwargs) -> DiscordHandlerModel:
@@ -44,44 +44,40 @@ class GithubWebhookHandler(GenericHandler):
 
     @staticmethod
     def _build_issue(data: Dict) -> Embed:
-        repo = data['project']['path_with_namespace']
+        repo = data['repository']['name']
 
-        issue_attributes = data['object_attributes']
-        description = issue_attributes['description']
-        action = issue_attributes['action']
-        user = data['user']
+        issue_attributes = data['issue']
+        description = issue_attributes['body']
+        action = data['action']
+        user = issue_attributes['user']
 
         _ACTION_COLOR = {
             'closed': '0',
-            'open': '15426592',
-            'reopen': '15426592',
+            'opened': '15426592',
+            'reopened': '15426592',
         }
 
         return Embed(
-            author=EmbedAuthor(name=user.get('name', user['username'])),
-            title=f"[{repo}] Issue opened: #{issue_attributes['iid']} {issue_attributes['title']}",
+            author=EmbedAuthor(name=user['login'], url=user['html_url']),
+            title=f"[{repo}] Issue {action}: #{issue_attributes['number']} {issue_attributes['title']}",
             description=description,
-            url=issue_attributes['url'],
+            url=issue_attributes['html_url'],
             color=_ACTION_COLOR.get(action, '0')
         )
 
     @staticmethod
     def _build_comment(data: Dict) -> Embed:
-        _NOTE_TYPE = {
-            'Issue': data.get('issue'),
-        }
+        repo = data['repository']['name']
 
-        repo = data['project']['path_with_namespace']
-
-        note = data['object_attributes']
-        description = note['description']
-        obj = _NOTE_TYPE.get(note['noteable_type'])
-        user = data['user']
+        comment = data['comment']
+        description = comment['body']
+        issue = data['issue']
+        user = comment['user']
 
         return Embed(
-            author=EmbedAuthor(name=user.get('name', user['username'])),
-            title=f"[{repo}] New comment on issue #{obj['iid']} {obj['title']}",
+            author=EmbedAuthor(name=user['login'], url=user['html_url']),
+            title=f"[{repo}] New comment on issue #{issue['number']} {issue['title']}",
             description=description,
-            url=note['url'],
+            url=comment['html_url'],
             color='15109472'
         )
