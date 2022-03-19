@@ -32,7 +32,7 @@ class GithubWebhookHandler(GenericHandler):
         commits = data['commits']
         number_of_commits = len(commits)
         # TODO: link to commit
-        description = "\n".join([f"`{commit['id'][:7]}` {commit['message']}" for commit in commits[:10]])
+        description = "<br/>".join([f"`{commit['id'][:7]}` {commit['message']}" for commit in commits[:10]])
 
         return Embed(
             author=EmbedAuthor(name=data['pusher']['name']),
