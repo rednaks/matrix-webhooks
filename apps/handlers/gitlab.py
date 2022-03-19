@@ -58,7 +58,7 @@ class GitlabWebhookHandler(GenericHandler):
 
         return Embed(
             author=EmbedAuthor(name=user.get('name', user['username'])),
-            title=f"[{repo}] Issue opened: #{issue_attributes['iid']} {issue_attributes['title']}",
+            title=f"[{repo}] Issue {action}: #{issue_attributes['iid']} {issue_attributes['title']}",
             description=description,
             url=issue_attributes['url'],
             color=_ACTION_COLOR.get(action, '0')
