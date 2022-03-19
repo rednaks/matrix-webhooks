@@ -35,7 +35,7 @@ class GithubWebhookHandler(GenericHandler):
         description = "\n".join([f"`{commit['id'][:7]}` {commit['message']}" for commit in commits[:10]])
 
         return Embed(
-            author=EmbedAuthor(name=data.get('pusher', data['username'])),
+            author=EmbedAuthor(name=data['pusher']['name']),
             title=f"[{repo}:{branch}] {number_of_commits} commit(s)",  # TODO: title url
             # TODO: url= refs diff
             description=description,
