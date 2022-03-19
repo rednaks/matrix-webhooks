@@ -186,3 +186,4 @@ EMAIL_USE_SSL = True
 # custom settings
 from MatrixWebhooks.custom_settings import * # noqa
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+CONSTANCE_DATABASE_CACHE_BACKEND = 'default'
