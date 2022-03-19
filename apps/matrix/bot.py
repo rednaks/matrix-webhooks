@@ -77,6 +77,7 @@ async def send(config: MatrixConfig, room_id: str, payload: DiscordWebhookHandle
             event_type=EventType.ROOM_MESSAGE
         )
     except Exception as e:
+        print(e.message)
         raise BotAPIException(e.message)
     finally:
         await client.api.session.close()
