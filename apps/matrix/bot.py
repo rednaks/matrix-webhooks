@@ -56,8 +56,10 @@ async def check_in_room(config: MatrixConfig, room_id: str) -> bool:
     try:
         joined_rooms = await client.get_joined_rooms()
         return room_id in joined_rooms
-    except Exception:
-        raise BotAPIException()
+    except Exception as e:
+        raise BotAPIException(e.message)
+    finally:
+        await client.api.session.close()
 
 
 @async_to_sync
@@ -74,8 +76,10 @@ async def send(config: MatrixConfig, room_id: str, payload: DiscordWebhookHandle
             content=msg,
             event_type=EventType.ROOM_MESSAGE
         )
-    except Exception:
-        raise BotAPIException
+    except Exception as e:
+        raise BotAPIException(e.message)
+    finally:
+        await client.api.session.close()
 
 
 @async_to_sync
