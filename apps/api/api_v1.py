@@ -39,7 +39,7 @@ def bot_error_handler(request, _):
         request,
         {
             'status': 'error',
-            'msg': 'matrix api error'
+            'msg': 'internal api error'
         },
         status=503
     )
@@ -56,8 +56,9 @@ def ratelimit_exception_handler(request, _):
         status=420
     )
 
-@ratelimit
+
 @api.post('/notify/{user_token}/{room_id}/{source}', url_name='notify')
+@ratelimit
 def notify(request, user_token: str, room_id: str, source: Source,
            data: WebhookPayload):
     payload = json.loads(request.body)
@@ -66,12 +67,14 @@ def notify(request, user_token: str, room_id: str, source: Source,
 
 
 @api.post('/notify/{user_token}/{room_id}/', url_name='notify')
+@ratelimit
 def notify_default(request, user_token: str, room_id: str, data: WebhookPayload):
     payload = json.loads(request.body)
     return _handle_webhook(room_id, payload)
 
 
 @api.get('/status/{user_token}/{room_id}/')
+@ratelimit
 def status(request, user_token: str, room_id: str):
     config = get_matrix_config()
     return {
