@@ -11,6 +11,7 @@ class GithubWebhookHandler(GenericHandler):
             'push': GithubWebhookHandler._build_push,
             'issues': GithubWebhookHandler._build_issue,
             'issue_comment': GithubWebhookHandler._build_comment,
+            'pull_request': GithubWebhookHandler._build_pull_request,
         }
 
     def parse(self, payload: Dict, **kwargs) -> DiscordHandlerModel:
@@ -80,4 +81,27 @@ class GithubWebhookHandler(GenericHandler):
             description=description,
             url=comment['html_url'],
             color='15109472'
+        )
+
+    @staticmethod
+    def _build_pull_request(data: Dict) -> Embed:
+        _ACTION_COLOR = {
+            'closed': '0',
+            'opened': '10026904',
+            'reopened': '15426592',
+        }
+
+        repo = data['repository']['name']
+
+        pr = data['pull_request']
+        description = pr['body']
+        action = data['action']
+        user = pr['user']
+
+        return Embed(
+            author=EmbedAuthor(name=user['login'], url=user['html_url']),
+            title=f"[{repo}] Pull request {action}: #{pr['number']} {pr['title']}",
+            description=description,
+            url=pr['html_url'],
+            color=_ACTION_COLOR.get(action, '0')
         )
