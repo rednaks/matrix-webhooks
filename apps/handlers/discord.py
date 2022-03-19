@@ -35,5 +35,5 @@ class DiscordHandlerModel(BaseModel):
 
 
 class DiscordWebhookHandler(GenericHandler):
-    def parse(self, payload):
+    def parse(self, payload, **_):
         return DiscordHandlerModel(**payload)

@@ -12,7 +12,7 @@ class GitlabWebhookHandler(GenericHandler):
             'note': GitlabWebhookHandler._build_comment,
         }
 
-    def parse(self, payload: Dict) -> DiscordHandlerModel:
+    def parse(self, payload: Dict, **kwargs) -> DiscordHandlerModel:
         event = payload.get('event_name', payload.get('event_type'))
         return DiscordHandlerModel(
             embeds=[

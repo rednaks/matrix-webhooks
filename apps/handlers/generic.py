@@ -10,5 +10,5 @@ class GenericHandler(ABC):
         return self.__str__()
 
     @abstractmethod
-    def parse(self, payload):
+    def parse(self, payload, **kwargs):
         ...
