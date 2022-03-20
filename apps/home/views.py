@@ -97,11 +97,15 @@ def logout_view(request):
 
 def send_magic_link(user, link):
 
+    mail_content = f"""
+    Use this magic link to login to Matrix-Webhooks: <a clicktracking=off href="{link}">{link}</a>
+    """
     send_mail(
-        '[Matrix-Webhooks] Login magic link',
-        link,
-        settings.EMAIL_HOST_USER,
-        [user.email],
+        subject='[Matrix-Webhooks] Login magic link',
+        message=mail_content,
+        html_message=mail_content,
+        from_email=None,
+        recipient_list=[user.email],
         fail_silently=False,
     )
 
