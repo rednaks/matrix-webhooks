@@ -3,22 +3,28 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
+                <h5 class="modal-title">Login to matrix-webhooks.</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" action="{% url 'login_view' %}">
-              {% csrf_token %}
-              <div class="modal-body">
-                  <div class="input-group flex-nowrap">
-                      <span class="input-group-text" id="email-signin-input">@</span>
-                      <input type="text" name="email" class="form-control" placeholder="email" aria-label="email"
-                             aria-describedby="addon-wrapping" required>
-                  </div>
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  <button type="submit" class="btn btn-primary">Login</button>
-              </div>
-          </form>
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p>Login or create your account</p>
+                    <div class="input-group flex-nowrap">
+                        <span class="input-group-text" id="email-signin-input">Email</span>
+                        <input type="text" name="email" class="form-control" placeholder="Your email" aria-label="email"
+                               aria-describedby="addon-wrapping" required>
+                    </div>
+                    <div></div>
+                    <div class="alert alert-success" role="alert" style="margin-top:10px;">
+                        We'll send you a magic link for a no-password sign up.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
