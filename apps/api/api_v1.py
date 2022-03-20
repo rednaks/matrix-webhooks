@@ -28,7 +28,7 @@ def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: Http
         payload = handler.parse(webhook_payload, headers=request.headers)
     except Exception as e:
         print(f'unable to parse')
-        print(f'payload: {payload}')
+        print(f'payload: {webhook_payload}')
         print(f'source: {source.name}')
         raise
 
