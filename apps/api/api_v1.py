@@ -24,7 +24,13 @@ class WebhookPayload(Schema):
 def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: HttpRequest = None,
                     source: AvailableSources = AvailableSources.DISCORD):
     handler = get_handler(source.name)()
-    payload = handler.parse(webhook_payload, headers=request.headers)
+    try:
+        payload = handler.parse(webhook_payload, headers=request.headers)
+    except Exception as e:
+        print(f'unable to parse')
+        print(f'payload: {payload}')
+        print(f'source: {source.name}')
+        raise
 
     config = get_matrix_config()
     bot.send(config, room_id, payload)
