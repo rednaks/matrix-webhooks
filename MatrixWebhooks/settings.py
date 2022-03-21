@@ -88,7 +88,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'MatrixWebhooks.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 DATABASES = {
@@ -123,7 +122,6 @@ if TEST_ENV:
         }
     }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -146,7 +144,6 @@ AUTHENTICATION_BACKENDS = [
     "sesame.backends.ModelBackend",
     "django.contrib.auth.backends.ModelBackend",
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
