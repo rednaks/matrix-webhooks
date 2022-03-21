@@ -88,6 +88,7 @@ async def joinserver(config: MatrixConfig) -> None:
                     if redis_client.ttl(_get_invitation_incident_key(event.sender, state.room_id)) > -1:
                         await client.leave_room(state.room_id,
                                                 reason="Can't accept invitation, {event.sender} is blocked")
+                        return
                     else:
                         await client.join_room(state.room_id)
                     if not event.content.is_direct:
