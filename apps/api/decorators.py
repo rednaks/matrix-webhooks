@@ -1,4 +1,5 @@
 from functools import wraps
+import logging
 
 from apps.helpers import get_redis_client
 from constance import config
@@ -11,7 +12,7 @@ class RateLimitException(Exception):
 def ratelimit(func):
     @wraps(func)
     def wrapper(request, *a, **kw):
-        print(f"token : {kw['user_token']}")
+        logging.info(f"token : {kw['user_token']}")
         token = kw['user_token']
         redis_client = get_redis_client()
         key = f"ratelimit:{token}"

@@ -7,6 +7,7 @@ from apps.handlers import get_handler, AvailableSources
 from apps.matrix import bot
 from typing import Any, Dict
 import json
+import logging
 
 from apps.matrix.utils import get_matrix_config
 
@@ -27,9 +28,9 @@ def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: Http
     try:
         payload = handler.parse(webhook_payload, headers=request.headers)
     except Exception as e:
-        print(f'unable to parse')
-        print(f'payload: {webhook_payload}')
-        print(f'source: {source.name}')
+        logging.warning(f'unable to parse')
+        logging.warning(f'payload: {webhook_payload}')
+        logging.warning(f'source: {source.name}')
         raise
 
     config = get_matrix_config()

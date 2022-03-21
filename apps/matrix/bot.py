@@ -1,3 +1,5 @@
+import logging
+
 from asgiref.sync import async_to_sync
 from mautrix.types import EventType, Membership
 from mautrix.client import Client
@@ -34,6 +36,7 @@ async def joinserver(config: MatrixConfig) -> None:
 
     @client.on(EventType.ROOM_MEMBER)
     async def handle_join_invite(event):
+        logging.debug(f"handling invites {event.json()}")
         if event.content.membership == Membership.INVITE and event.unsigned.invite_room_state:
             joined = []
             for state in event.unsigned.invite_room_state:
@@ -43,10 +46,10 @@ async def joinserver(config: MatrixConfig) -> None:
                     await client.join_room(state.room_id)
                     print(f"joined {state.room_id}")
                     joined.append(state.room_id)
-                except Exception as e:
-                    print(e)
+                except Exception:
+                    logging.error(f"Error when handleing invitation", exc_info=True)
 
-    print("start join server")
+    logging.info("start join server")
     await client.start(filter_data=None)
 
 
@@ -57,7 +60,7 @@ async def check_in_room(config: MatrixConfig, room_id: str) -> bool:
         joined_rooms = await client.get_joined_rooms()
         return room_id in joined_rooms
     except Exception as e:
-        print(e.message)
+        logging.error("couldn't get list of joined rooms.", exc_info=True)
         raise BotAPIException(e.message)
     finally:
         await client.api.session.close()
@@ -78,7 +81,7 @@ async def send(config: MatrixConfig, room_id: str, payload: DiscordWebhookHandle
             event_type=EventType.ROOM_MESSAGE
         )
     except Exception as e:
-        print(e.message)
+        logging.error(f"couldn't send msg to {room_id}.", exc_info=True)
         raise BotAPIException(e.message)
     finally:
         await client.api.session.close()

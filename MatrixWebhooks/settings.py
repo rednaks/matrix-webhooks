@@ -9,10 +9,11 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import sys
 from pathlib import Path
 import environ
 from datetime import timedelta
+import logging
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -158,7 +159,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
@@ -183,8 +183,16 @@ DEFAULT_FROM_EMAIL = env('EMAIL_FROM')
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 
-
 # custom settings
-from MatrixWebhooks.custom_settings import * # noqa
+from MatrixWebhooks.custom_settings import *  # noqa
+
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 CONSTANCE_DATABASE_CACHE_BACKEND = 'default'
+
+mw_logger = logging.getLogger()
+mw_logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+mw_logger.addHandler(handler)
