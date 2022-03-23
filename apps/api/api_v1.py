@@ -60,6 +60,18 @@ def ratelimit_exception_handler(request, _):
     )
 
 
+@api.exception_handler(NoPermissionToNotifyRoomException)
+def notify_permission_exception_handler(request, _):
+    return api.create_response(
+        request,
+        {
+            'status': 'error',
+            'msg': "You Don't have permission to send notifications to this room"
+        },
+        status=401
+    )
+
+
 @api.post('/notify/{user_token}/{room_id}/{source}', url_name='notify')
 @ratelimit
 @check_notify_permission
