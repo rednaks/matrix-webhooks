@@ -78,27 +78,39 @@ async def joinserver(config: MatrixConfig) -> None:
     @client.on(EventType.ROOM_MEMBER)
     async def handle_join_invite(event):
         logging.debug(f"handling invites {event.json()}")
-        if event.content.membership == Membership.INVITE and event.unsigned.invite_room_state:
-            joined = []
-            for state in event.unsigned.invite_room_state:
-                if state.room_id in joined:
+        if not (event.content.membership == Membership.INVITE and event.unsigned.invite_room_state):
+            return
+        joined = []
+        for state in event.unsigned.invite_room_state:
+            if state.room_id in joined:
+                continue
+            try:
+                logging.debug(f"{event.content}")
+                if redis_client.ttl(_get_invitation_incident_key(event.sender, state.room_id)) > -1:
+                    await client.leave_room(state.room_id,
+                                            reason=f"Can't accept invitation, {event.sender} is blocked")
                     continue
-                try:
-                    logging.debug(f"{event.content}")
-                    logging.debug(f"{event.json()}")
-                    if redis_client.ttl(_get_invitation_incident_key(event.sender, state.room_id)) > -1:
-                        await client.leave_room(state.room_id,
-                                                reason="Can't accept invitation, {event.sender} is blocked")
-                        return
-                    else:
-                        await client.join_room(state.room_id)
-                    if not event.content.is_direct:
-                        redis_client.set(_get_pending_invitation_key(state.room_id), event.sender)
-                    else:
-                        logging.info(f"joined : {state.room_id}")
-                    joined.append(state.room_id)
-                except Exception:
-                    logging.error(f"Error when handleing invitation", exc_info=True)
+
+                if not event.content.is_direct:
+                    # set invitation for review
+                    review_key = _get_pending_invitation_key(state.room_id)
+                    logging.info(f"setting invitation for review: {review_key}")
+                    redis_client.set(review_key, event.sender)
+                else:
+                    logging.info(f"Bot was invited in a direct chat, joining without review : {state.room_id}")
+
+                if event.content.reason:
+                    # find user with token
+                    provided_token = event.content.reason
+                    room_id = state.room_id
+                    logging.info(f"Invitation provided a reason (token) '{provided_token}', looking for user match")
+                    await assign_room_to_user(provided_token, room_id)
+
+                await client.join_room(state.room_id)
+                joined.append(state.room_id)
+            except Exception:
+                logging.error(f"Error when handling invitation", exc_info=True)
+
 
     logging.info("start join server")
     await client.start(filter_data=None)
