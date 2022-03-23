@@ -1,6 +1,8 @@
 from django.http import HttpRequest
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI
 
+from apps.api.decorators import ratelimit, RateLimitException, check_notify_permission, \
+    NoPermissionToNotifyRoomException
 
 from apps.api.schemas import Source, WebhookPayload, RoomsList
 from apps.api.security import APIKeyPath
@@ -54,12 +56,13 @@ def ratelimit_exception_handler(request, _):
             'status': 'error',
             'msg': 'too many requests'
         },
-        status=420
+        status=429
     )
 
 
 @api.post('/notify/{user_token}/{room_id}/{source}', url_name='notify')
 @ratelimit
+@check_notify_permission
 def notify(request, user_token: str, room_id: str, source: Source,
            data: WebhookPayload):
     payload = json.loads(request.body)
@@ -69,6 +72,7 @@ def notify(request, user_token: str, room_id: str, source: Source,
 
 @api.post('/notify/{user_token}/{room_id}/', url_name='notify')
 @ratelimit
+@check_notify_permission
 def notify_default(request, user_token: str, room_id: str, data: WebhookPayload):
     payload = json.loads(request.body)
     return _handle_webhook(room_id, payload, request)
