@@ -7,6 +7,7 @@ from apps.api.decorators import ratelimit, RateLimitException, check_notify_perm
 from apps.api.schemas import Source, WebhookPayload, RoomsList
 from apps.api.security import APIKeyPath
 from apps.handlers import get_handler, AvailableSources
+from apps.home.models import UserAccountModel
 from apps.matrix import bot
 from typing import Any, Dict
 import json
@@ -97,3 +98,10 @@ def status(request, user_token: str, room_id: str):
     return {
         'status': 'joined' if bot.check_in_room(config, room_id) else 'not joined'
     }
+
+
+@api.get('/rooms/{user_token}/', response=RoomsList)
+@ratelimit
+def rooms(request, user_token: str) -> RoomsList:
+    logging.info(f"user: {request.auth}")
+    return UserAccountModel.objects.get(user=request.auth)
