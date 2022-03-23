@@ -1,11 +1,12 @@
 import logging
 
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from mautrix.types import EventType, Membership
 from mautrix.client import Client
 import markdownify
 
 from apps.helpers import get_redis_client
+from apps.home.models import UserAccountModel, MatrixRoomModel
 from apps.matrix.render import jinja_env, TEMPLATE
 from apps.handlers.discord import DiscordWebhookHandler
 from apps.types import MatrixConfig
@@ -144,6 +145,30 @@ async def login(config: MatrixConfig) -> None:
     await client.set_displayname("@webhooks:matrix-webhooks.com")
     await client.api.session.close()
     return response
+
+
+@sync_to_async
+def assign_room_to_user(provided_token, room_id):
+    try:
+        user = UserAccountModel.objects.get(token=provided_token)
+        room, _ = MatrixRoomModel.objects.get_or_create(room_id=room_id)
+        user.rooms.add(room)
+        user.save()
+    except UserAccountModel.DoesNotExist:
+        logging.warning(f"No user found with provided token {provided_token}")
+
+
+@sync_to_async
+def unassign_room_from_user(room_id):
+    try:
+        room = MatrixRoomModel.objects.get(room_id=room_id)
+        user = UserAccountModel.objects.get(rooms=room)
+        user.rooms.remove(room)
+        user.save()
+    except MatrixRoomModel.DoesNotExist:
+        ...
+    except UserAccountModel.DoesNotExist:
+        ...
 
 
 class BotAPIException(Exception):
