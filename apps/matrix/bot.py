@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from asgiref.sync import async_to_sync, sync_to_async
 from mautrix.types import EventType, Membership
@@ -111,6 +112,21 @@ async def joinserver(config: MatrixConfig) -> None:
             except Exception:
                 logging.error(f"Error when handling invitation", exc_info=True)
 
+    @client.on(EventType.ROOM_MEMBER)
+    async def handle_leave(event):
+        processed_event_key = f"processed_matrix_event:{event.event_id}"
+        processed = redis_client.get(processed_event_key)
+
+        if event.content.membership == Membership.LEAVE and not processed:
+            logging.info(f"Bot was removed from room: {event.room_id} by @{event.sender}")
+            try:
+                await unassign_room_from_user(event.room_id)
+            except Exception:
+                logging.warning(f"something happened when handling leave for room {event.room_id}", exc_info=True)
+            redis_client.set(processed_event_key, datetime.now().timestamp())
+            redis_client.expire(processed_event_key, 60 * 60 * 24 * 10)
+        elif processed:
+            logging.info(f"Event {event.event_id} is already processed, nothing to do")
 
     logging.info("start join server")
     await client.start(filter_data=None)
