@@ -78,7 +78,7 @@ def notify(request, user_token: str, room_id: str, source: Source,
 @ratelimit
 def notify_default(request, user_token: str, room_id: str, data: WebhookPayload):
     payload = json.loads(request.body)
-    return _handle_webhook(room_id, payload)
+    return _handle_webhook(room_id, payload, request)
 
 
 @api.get('/status/{user_token}/{room_id}/')
