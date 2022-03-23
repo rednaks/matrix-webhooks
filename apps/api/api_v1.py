@@ -1,7 +1,8 @@
 from django.http import HttpRequest
 from ninja import NinjaAPI, Schema
 
-from apps.api.decorators import ratelimit, RateLimitException
+
+from apps.api.schemas import Source, WebhookPayload, RoomsList
 from apps.api.security import APIKeyPath
 from apps.handlers import get_handler, AvailableSources
 from apps.matrix import bot
@@ -12,14 +13,6 @@ import logging
 from apps.matrix.utils import get_matrix_config
 
 api = NinjaAPI(version='1', auth=APIKeyPath())
-
-
-class Source(Schema):
-    source: AvailableSources
-
-
-class WebhookPayload(Schema):
-    ...
 
 
 def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: HttpRequest = None,
