@@ -1,11 +1,13 @@
 import logging
+from datetime import datetime
 
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from mautrix.types import EventType, Membership
 from mautrix.client import Client
 import markdownify
 
 from apps.helpers import get_redis_client
+from apps.home.models import UserAccountModel, MatrixRoomModel
 from apps.matrix.render import jinja_env, TEMPLATE
 from apps.handlers.discord import DiscordWebhookHandler
 from apps.types import MatrixConfig
@@ -77,27 +79,54 @@ async def joinserver(config: MatrixConfig) -> None:
     @client.on(EventType.ROOM_MEMBER)
     async def handle_join_invite(event):
         logging.debug(f"handling invites {event.json()}")
-        if event.content.membership == Membership.INVITE and event.unsigned.invite_room_state:
-            joined = []
-            for state in event.unsigned.invite_room_state:
-                if state.room_id in joined:
+        if not (event.content.membership == Membership.INVITE and event.unsigned.invite_room_state):
+            return
+        joined = []
+        for state in event.unsigned.invite_room_state:
+            if state.room_id in joined:
+                continue
+            try:
+                logging.debug(f"{event.content}")
+                if redis_client.ttl(_get_invitation_incident_key(event.sender, state.room_id)) > -1:
+                    await client.leave_room(state.room_id,
+                                            reason=f"Can't accept invitation, {event.sender} is blocked")
                     continue
-                try:
-                    logging.debug(f"{event.content}")
-                    logging.debug(f"{event.json()}")
-                    if redis_client.ttl(_get_invitation_incident_key(event.sender, state.room_id)) > -1:
-                        await client.leave_room(state.room_id,
-                                                reason="Can't accept invitation, {event.sender} is blocked")
-                        return
-                    else:
-                        await client.join_room(state.room_id)
-                    if not event.content.is_direct:
-                        redis_client.set(_get_pending_invitation_key(state.room_id), event.sender)
-                    else:
-                        logging.info(f"joined : {state.room_id}")
-                    joined.append(state.room_id)
-                except Exception:
-                    logging.error(f"Error when handleing invitation", exc_info=True)
+
+                if not event.content.is_direct:
+                    # set invitation for review
+                    review_key = _get_pending_invitation_key(state.room_id)
+                    logging.info(f"setting invitation for review: {review_key}")
+                    redis_client.set(review_key, event.sender)
+                else:
+                    logging.info(f"Bot was invited in a direct chat, joining without review : {state.room_id}")
+
+                if event.content.reason:
+                    # find user with token
+                    provided_token = event.content.reason
+                    room_id = state.room_id
+                    logging.info(f"Invitation provided a reason (token) '{provided_token}', looking for user match")
+                    await assign_room_to_user(provided_token, room_id)
+
+                await client.join_room(state.room_id)
+                joined.append(state.room_id)
+            except Exception:
+                logging.error(f"Error when handling invitation", exc_info=True)
+
+    @client.on(EventType.ROOM_MEMBER)
+    async def handle_leave(event):
+        processed_event_key = f"processed_matrix_event:{event.event_id}"
+        processed = redis_client.get(processed_event_key)
+
+        if event.content.membership == Membership.LEAVE and not processed:
+            logging.info(f"Bot was removed from room: {event.room_id} by @{event.sender}")
+            try:
+                await unassign_room_from_user(event.room_id)
+            except Exception:
+                logging.warning(f"something happened when handling leave for room {event.room_id}", exc_info=True)
+            redis_client.set(processed_event_key, datetime.now().timestamp())
+            redis_client.expire(processed_event_key, 60 * 60 * 24 * 10)
+        elif processed:
+            logging.info(f"Event {event.event_id} is already processed, nothing to do")
 
     logging.info("start join server")
     await client.start(filter_data=None)
@@ -144,6 +173,30 @@ async def login(config: MatrixConfig) -> None:
     await client.set_displayname("@webhooks:matrix-webhooks.com")
     await client.api.session.close()
     return response
+
+
+@sync_to_async
+def assign_room_to_user(provided_token, room_id):
+    try:
+        user = UserAccountModel.objects.get(token=provided_token)
+        room, _ = MatrixRoomModel.objects.get_or_create(room_id=room_id)
+        user.rooms.add(room)
+        user.save()
+    except UserAccountModel.DoesNotExist:
+        logging.warning(f"No user found with provided token {provided_token}")
+
+
+@sync_to_async
+def unassign_room_from_user(room_id):
+    try:
+        room = MatrixRoomModel.objects.get(room_id=room_id)
+        user = UserAccountModel.objects.get(rooms=room)
+        user.rooms.remove(room)
+        user.save()
+    except MatrixRoomModel.DoesNotExist:
+        ...
+    except UserAccountModel.DoesNotExist:
+        ...
 
 
 class BotAPIException(Exception):

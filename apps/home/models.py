@@ -4,6 +4,10 @@ import secrets
 import random
 
 
+class MatrixRoomModel(models.Model):
+    room_id = models.CharField(max_length=512, unique=True)
+
+
 class UserAccountModel(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -11,6 +15,7 @@ class UserAccountModel(models.Model):
     )
 
     token = models.CharField(max_length=50)
+    rooms = models.ManyToManyField(MatrixRoomModel)
 
     @staticmethod
     def generate_token():

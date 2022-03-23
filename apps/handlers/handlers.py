@@ -8,7 +8,7 @@ from .gitlab import GitlabWebhookHandler
 class AvailableSources(str, Enum):
     GITHUB = 'github'
     GITLAB = 'gitlab'
-    DISCORD = 'discord'
+    DISCORD = ''
 
 
 _HANDLERS = {

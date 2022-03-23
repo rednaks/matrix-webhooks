@@ -7,7 +7,7 @@
         margin: 10px;
 
     }
-    
+
     .card {
       border: none;
     }
@@ -41,7 +41,7 @@
     font-size: 0.8em;
 }
 
-.hightlight {
+.highlight {
   background-color: #f8f9fa;
 }
 .highlight pre {
@@ -74,18 +74,29 @@
 
 
 
+
 </style>
 {% if user.is_authenticated %}
 <div class="px-4 py-5 my-5 text-center">
     <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Invite <strong>@webhooks:matrix-webhooks.com</strong> to your matrix room and start receiving webhooks.</p>
+        <p class="lead mb-4">Invite <strong>@webhooks:matrix-webhooks.com</strong> to your matrix room and start
+            receiving webhooks.</p>
+        <p>
+            Make sure to include your personal token as an invitation reason to claim the bot.
+            Otherwise you can send a notification to the bot to claim it.
+            If you are using <strong>element</strong> client you can use this command to invite the bot.
+        </p>
+        <div class="highlight">
+            <code>/invite @webhooks:matrix-webhooks.com {{ token }}</code>
+        </div>
     </div>
+    <br/>
     <div class="col-lg-6 mx-auto">
         <p class="lead mb-4">your personal webhook urls, please keep them secret</p>
     </div>
     <div class="col-lg-9 mx-auto">
         {% for notify in notify_urls %}
-        <div class="hightlight">
+        <div class="highlight">
             <code>
                 {{ notify.url }}
             </code>
@@ -137,6 +148,9 @@
         code.parentNode.insertBefore(button, code);
     }
 });
+
+
+
 
 
 </script>

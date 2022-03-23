@@ -1,9 +1,13 @@
 from django.http import HttpRequest
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI
 
-from apps.api.decorators import ratelimit, RateLimitException
+from apps.api.decorators import ratelimit, RateLimitException, check_notify_permission, \
+    NoPermissionToNotifyRoomException
+
+from apps.api.schemas import Source, WebhookPayload, RoomsList
 from apps.api.security import APIKeyPath
 from apps.handlers import get_handler, AvailableSources
+from apps.home.models import UserAccountModel
 from apps.matrix import bot
 from typing import Any, Dict
 import json
@@ -12,14 +16,6 @@ import logging
 from apps.matrix.utils import get_matrix_config
 
 api = NinjaAPI(version='1', auth=APIKeyPath())
-
-
-class Source(Schema):
-    source: AvailableSources
-
-
-class WebhookPayload(Schema):
-    ...
 
 
 def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: HttpRequest = None,
@@ -61,12 +57,25 @@ def ratelimit_exception_handler(request, _):
             'status': 'error',
             'msg': 'too many requests'
         },
-        status=420
+        status=429
+    )
+
+
+@api.exception_handler(NoPermissionToNotifyRoomException)
+def notify_permission_exception_handler(request, _):
+    return api.create_response(
+        request,
+        {
+            'status': 'error',
+            'msg': "You Don't have permission to send notifications to this room"
+        },
+        status=401
     )
 
 
 @api.post('/notify/{user_token}/{room_id}/{source}', url_name='notify')
 @ratelimit
+@check_notify_permission
 def notify(request, user_token: str, room_id: str, source: Source,
            data: WebhookPayload):
     payload = json.loads(request.body)
@@ -76,9 +85,10 @@ def notify(request, user_token: str, room_id: str, source: Source,
 
 @api.post('/notify/{user_token}/{room_id}/', url_name='notify')
 @ratelimit
+@check_notify_permission
 def notify_default(request, user_token: str, room_id: str, data: WebhookPayload):
     payload = json.loads(request.body)
-    return _handle_webhook(room_id, payload)
+    return _handle_webhook(room_id, payload, request)
 
 
 @api.get('/status/{user_token}/{room_id}/')
@@ -88,3 +98,10 @@ def status(request, user_token: str, room_id: str):
     return {
         'status': 'joined' if bot.check_in_room(config, room_id) else 'not joined'
     }
+
+
+@api.get('/rooms/{user_token}/', response=RoomsList)
+@ratelimit
+def rooms(request, user_token: str) -> RoomsList:
+    logging.info(f"user: {request.auth}")
+    return UserAccountModel.objects.get(user=request.auth)

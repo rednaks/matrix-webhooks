@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, Any
 
 from django.http import HttpRequest
@@ -17,6 +18,7 @@ class APIKeyPath(APIKeyBase):
 
     def authenticate(self, request: HttpRequest, key) -> Optional[Any]:
         try:
-            return UserAccountModel.objects.get(token=key)
+            user = UserAccountModel.objects.get(token=key).user
+            return user
         except UserAccountModel.DoesNotExist:
-            pass
+            logging.info("User not found")
