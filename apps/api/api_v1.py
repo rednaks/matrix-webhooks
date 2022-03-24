@@ -1,9 +1,8 @@
 from django.http import HttpRequest
 from ninja import NinjaAPI
 
-from apps.api.decorators import ratelimit, RateLimitException, check_notify_permission, \
-    NoPermissionToNotifyRoomException
-
+from apps.api.decorators import ratelimit, check_notify_permission
+from apps.api.exception_handlers import add_exception_handlers
 from apps.api.schemas import Source, WebhookPayload, RoomsList
 from apps.api.security import APIKeyPath
 from apps.handlers import get_handler, AvailableSources
@@ -22,12 +21,14 @@ def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: Http
                     source: AvailableSources = AvailableSources.DISCORD):
     handler = get_handler(source.name)()
     try:
-        payload = handler.parse(webhook_payload, headers=request.headers)
+        headers = request.headers
+        payload = handler.parse(webhook_payload, headers=headers)
     except Exception as e:
         logging.warning(f'unable to parse')
         logging.warning(f'payload: {webhook_payload}')
         logging.warning(f'source: {source.name}')
-        raise
+        logging.warning(f'headers: {headers}')
+        raise e
 
     config = get_matrix_config()
     bot.send(config, room_id, payload)
@@ -35,42 +36,6 @@ def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: Http
         'status': 'success',
         'msg': 'webhook sent'
     }
-
-
-@api.exception_handler(bot.BotAPIException)
-def bot_error_handler(request, _):
-    return api.create_response(
-        request,
-        {
-            'status': 'error',
-            'msg': 'internal api error'
-        },
-        status=503
-    )
-
-
-@api.exception_handler(RateLimitException)
-def ratelimit_exception_handler(request, _):
-    return api.create_response(
-        request,
-        {
-            'status': 'error',
-            'msg': 'too many requests'
-        },
-        status=429
-    )
-
-
-@api.exception_handler(NoPermissionToNotifyRoomException)
-def notify_permission_exception_handler(request, _):
-    return api.create_response(
-        request,
-        {
-            'status': 'error',
-            'msg': "You Don't have permission to send notifications to this room"
-        },
-        status=401
-    )
 
 
 @api.post('/notify/{user_token}/{room_id}/{source}', url_name='notify')
@@ -105,3 +70,6 @@ def status(request, user_token: str, room_id: str):
 def rooms(request, user_token: str) -> RoomsList:
     logging.info(f"user: {request.auth}")
     return UserAccountModel.objects.get(user=request.auth)
+
+
+add_exception_handlers(api)
