@@ -9,3 +9,7 @@ def get_redis_client() -> redis.Redis:
     )
     assert redis_client.ping()  # check if connection is successful
     return redis_client
+
+
+def make_invitation_code_key(invitation_code):
+    return f"INVITATION_CODE:{invitation_code.lower()}"

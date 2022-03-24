@@ -8,6 +8,14 @@ class MatrixRoomModel(models.Model):
     room_id = models.CharField(max_length=512, unique=True)
 
 
+# TODO: caching ?
+class WaitingListUserAccountModel(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+
+
 class UserAccountModel(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -19,5 +27,5 @@ class UserAccountModel(models.Model):
 
     @staticmethod
     def generate_token():
-        length = max(20, int(random.random() * 70))  # nosec
+        length = max(20, int(random.random() * 49))  # nosec
         return secrets.token_urlsafe(length)
