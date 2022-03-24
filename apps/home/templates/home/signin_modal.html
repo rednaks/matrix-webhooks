@@ -12,13 +12,30 @@
                     <p>Login or create your account</p>
                     <div class="mb-3">
                         <label for="emailinput" class="form-label">Email address</label>
-                        <input id="emailinput" type="email" name="email" class="form-control" placeholder="Your email" aria-label="email"
+                        <input id="emailinput" type="email" name="email" class="form-control" placeholder="Your email"
+                               aria-label="email"
                                aria-describedby="addon-wrapping" required>
+                        {% if invitation_only %}
+                        <label for="invitationcodeinput" class="form-label">Invitation Code</label>
+                        <input id="invitationcodeinput" type="text" name="invitation_code" class="form-control"
+                               placeholder="Your Invitation Code"
+                               aria-label="invitation_code"
+                               aria-describedby="addon-wrapping">
+                        {% endif %}
                     </div>
                     <div></div>
+                    {% if invitation_only %}
+                    <div class="invitation-only-info">
+                        For now we have invitation only sign-up.<br/>
+                        If you have an invitation code or if you're already registered,
+                        we will send you a magic link for a no-password login.<br/>
+                        Otherwise you will be added to the waiting list.
+                    </div>
+                    {% else %}
                     <div class="magic-link-msg">
                         We'll send you a magic link for a no-password sign up.
                     </div>
+                    {% endif %}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
