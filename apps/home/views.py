@@ -17,7 +17,8 @@ from apps.handlers import AvailableSources
 
 def home(request):
     ctx = {
-        'login_url': reverse('login_view')
+        'login_url': reverse('login_view'),
+        'invitation_only': config.INVITATION_ONLY
     }
 
     if request.user.is_authenticated:
