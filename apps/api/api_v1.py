@@ -15,7 +15,7 @@ import logging
 
 from apps.matrix.utils import get_matrix_config
 
-api = NinjaAPI(version='1', auth=APIKeyPath())
+api = NinjaAPI(title="Matrix Webhooks API", version='1', auth=APIKeyPath())
 
 
 def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: HttpRequest = None,
