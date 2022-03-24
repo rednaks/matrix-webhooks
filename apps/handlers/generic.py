@@ -12,3 +12,7 @@ class GenericHandler(ABC):
     @abstractmethod
     def parse(self, payload, **kwargs):
         ...
+
+
+class HandlerParseException(Exception):
+    ...

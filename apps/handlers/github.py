@@ -1,7 +1,7 @@
 from typing import Dict
 
 from .discord import DiscordHandlerModel, Embed, EmbedAuthor
-from .generic import GenericHandler
+from .generic import GenericHandler, HandlerParseException
 
 
 class GithubWebhookHandler(GenericHandler):
@@ -23,7 +23,10 @@ class GithubWebhookHandler(GenericHandler):
         )
 
     def _build_embed_for_event(self, data, event) -> Embed:
-        return self.__EVENT_TO_BUILDER__[event](data)
+        try:
+            return self.__EVENT_TO_BUILDER__[event](data)
+        except KeyError:
+            raise HandlerParseException("unsupported event name")
 
     @staticmethod
     def _build_push(data: Dict) -> Embed:
