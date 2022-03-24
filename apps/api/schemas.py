@@ -15,7 +15,8 @@ class WebhookPayload(Schema):
     ...
 
 
-RoomSchema = create_schema(MatrixRoomModel)
+RoomSchema = create_schema(MatrixRoomModel, name="RoomSchema", fields=['room_id'])
+RoomSchema.update_forward_refs()
 
 
 class RoomsList(Schema):
