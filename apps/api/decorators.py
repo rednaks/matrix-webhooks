@@ -18,7 +18,7 @@ class NoPermissionToNotifyRoomException(Exception):
 def ratelimit(func):
     @wraps(func)
     def wrapper(request, *a, **kw):
-        logging.info(f"token : {kw['user_token']}")
+        logging.debug(f"token : {kw['user_token']}")
         token = kw['user_token']
         redis_client = get_redis_client()
         key = f"ratelimit:{token}"
@@ -37,7 +37,6 @@ def ratelimit(func):
 def check_notify_permission(func):
     @wraps(func)
     def wrapper(request, *a, **kw):
-        logging.info(f"permission dec: {a} || {kw}")
         room_id = kw['room_id']
         token = kw['user_token']
         logging.info(f"Checking permission to notify : {room_id}")
