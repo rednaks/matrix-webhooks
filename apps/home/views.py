@@ -50,14 +50,14 @@ def home(request):
 
 
 def login_view(request):
-
     if request.POST:
         login_form = LoginForm(request.POST)
 
         if login_form.is_valid():
             email = login_form.cleaned_data['email'].lower()
-            userModel = get_user_model()
-            requested_user, created = userModel.objects.get_or_create(username=email, email=email)
+            invitation_code = login_form.cleaned_data['invitation_code']
+            user_model = get_user_model()
+            requested_user, created = user_model.objects.get_or_create(username=email, email=email)
 
             # Generate token for account if created
             try:
