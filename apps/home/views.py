@@ -3,16 +3,17 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model, logout
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.conf import settings
+from constance import config
 
 import threading
 
 from sesame.utils import get_query_string, get_user
 
 from apps.home.forms import LoginForm, AuthForm
-from .models import UserAccountModel
+from .models import UserAccountModel, WaitingListUserAccountModel
 
 from apps.handlers import AvailableSources
+from ..helpers import get_redis_client, make_invitation_code_key
 
 
 def home(request):
@@ -64,21 +65,27 @@ def login_view(request):
             try:
                 UserAccountModel.objects.get(user=requested_user)
             except UserAccountModel.DoesNotExist:
-                _generate_token_for_user(requested_user)
+                _create_user_account(invitation_code, requested_user)
 
-            token_qs = get_query_string(requested_user)
+            try:
+                WaitingListUserAccountModel.objects.get(user=requested_user)
+                messages.add_message(request, messages.INFO,
+                                     f"You're in the waiting list, you will be notified when your account is enabled.")
+            except WaitingListUserAccountModel.DoesNotExist:
+                # user exist and not in waiting list. continue login process
+                token_qs = get_query_string(requested_user)
 
-            magic_link = request.build_absolute_uri(reverse('login_view'))
+                magic_link = request.build_absolute_uri(reverse('login_view'))
 
-            magic_link = f'{magic_link}{token_qs}'
+                magic_link = f'{magic_link}{token_qs}'
 
-            # TODO: celery
-            async_task(send_magic_link, requested_user, magic_link)
+                # TODO: celery
+                async_task(send_magic_link, requested_user, magic_link)
 
-            messages.add_message(request,
-                                 messages.SUCCESS,
-                                 f'A link was sent to {email}. Please check your inbox to login.'
-                                 )
+                messages.add_message(request,
+                                     messages.SUCCESS,
+                                     f'A link was sent to {email}. Please check your inbox to login.'
+                                     )
 
     elif request.GET:
         auth_form = AuthForm(request.GET)
@@ -97,7 +104,6 @@ def logout_view(request):
 
 
 def send_magic_link(user, link):
-
     mail_content = f"""
     Use this magic link to login to Matrix-Webhooks: <a clicktracking=off href="{link}">{link}</a>
     """
@@ -122,3 +128,21 @@ def _generate_token_for_user(user):
     user_account.token = UserAccountModel.generate_token()
     user_account.save()
     return user_account.token
+
+
+def _create_user_account(invitation_code, requested_user) -> None:
+    if not config.INVITATION_ONLY:
+        return _generate_token_for_user(requested_user)
+
+    redis_client = get_redis_client()
+    invitation_code_key = make_invitation_code_key(invitation_code)
+    remaining_invitation = redis_client.get(invitation_code_key)
+    if remaining_invitation and int(remaining_invitation) > 0:
+        _generate_token_for_user(requested_user)
+        redis_client.decr(invitation_code_key)
+    else:
+        _add_to_waiting_list(requested_user)
+
+
+def _add_to_waiting_list(user):
+    waiting_list_account, _ = WaitingListUserAccountModel.objects.get_or_create(user=user)
