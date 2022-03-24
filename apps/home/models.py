@@ -27,5 +27,5 @@ class UserAccountModel(models.Model):
 
     @staticmethod
     def generate_token():
-        length = max(20, int(random.random() * 70))  # nosec
+        length = max(20, int(random.random() * 49))  # nosec
         return secrets.token_urlsafe(length)
