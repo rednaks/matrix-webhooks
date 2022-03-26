@@ -1,0 +1,27 @@
+<div class="col-lg-8 mx-auto p-3 py-md-5">
+  <h2>Invite the webhooks bot</h2>
+  <p class="fs-5 col-md-11">Start by inviting <strong>@webhooks:matrix-webhooks.com</strong> to your matrix room.</p>
+  <div class="mb-5">
+    <p>
+    Make sure to include your personal token as an invitation reason to claim the bot.
+    Otherwise you can send a notification to the bot to claim it.
+    If you are using <strong>element</strong> client you can use this command to invite the bot.
+    </p>
+    <div class="highlight">
+      <code>/invite @webhooks:matrix-webhooks.com {{ token }}</code>
+    </div>
+  </div>
+
+  <hr class="col-3 col-md-2 mb-5">
+
+  <div class="mb-5">
+    <h2>Your personal webhook urls, please keep them secret</h2>
+    {% for notify in notify_urls %}
+    <div class="highlight">
+      <code>
+        {{ notify.url }}
+      </code>
+    </div>
+    {% endfor %}
+  </div>
+</div>
