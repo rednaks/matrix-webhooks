@@ -64,14 +64,14 @@
 {% include "home/signin_modal.html" %}
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-xxl flex-wrap flex-md-nowrap">
+    <div class="container-fluid">
         <a href="{% url 'home' %}" class="navbar-brand" href="#">Matrix-Webhooks</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav d-flex">
+            <ul class="navbar-nav me-auto mb2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link" href="/doc">Get Started</a>
                 </li>
@@ -83,23 +83,23 @@
                 </li>
 
             </ul>
+            {% if user.is_authenticated %}
+            <a class="btn btn-bd-login d-lg-inline-block my-2 my-md-0 ms-md-3"
+               href="{% url 'logout' %}">
+              Logout
+            </a>
+            {% else %}
+            <a class="btn btn-bd-hero-login d-lg-inline-block my-2 my-md-0 ms-md-3 mb-3 me-md-3"
+               data-bs-toggle="modal" data-bs-target="#loginModal">
+              Login
+            </a>
         </div>
-        {% if user.is_authenticated %}
-        <a class="btn btn-bd-login d-lg-inline-block my-2 my-md-0 ms-md-3"
-           href="{% url 'logout' %}">
-            Logout
-        </a>
-        {% else %}
-        <a class="btn btn-bd-hero-login d-lg-inline-block my-2 my-md-0 ms-md-3 mb-3 me-md-3"
-           data-bs-toggle="modal" data-bs-target="#loginModal">
-            Login
-        </a>
         {% endif %}
     </div>
 </nav>
 <div class="container">
-    {% if messages %}
-    {% for message in messages %}
+  {% if messages %}
+  {% for message in messages %}
     {% if message.tags == "error" %}
     {% bootstrap_alert message alert_type="danger" dismissible=true %}
     {% else %}
