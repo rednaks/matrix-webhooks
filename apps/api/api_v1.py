@@ -12,6 +12,8 @@ from typing import Any, Dict
 import json
 import logging
 
+from apps.helpers import get_redis_client, get_pending_invitation_key
+
 from apps.matrix.utils import get_matrix_config
 
 api = NinjaAPI(title="Matrix Webhooks API", version='1', auth=APIKeyPath())
@@ -59,9 +61,17 @@ def notify_default(request, user_token: str, room_id: str, data: WebhookPayload)
 @api.get('/status/{user_token}/{room_id}/')
 @ratelimit
 def status(request, user_token: str, room_id: str):
-    config = get_matrix_config()
+    # check if we have a pending invitation.
+    pending_invitation = get_pending_invitation_key(room_id)
+    redis_client = get_redis_client()
+    if redis_client.get(pending_invitation):
+        status = 'pending'
+    else:
+        config = get_matrix_config()
+        status = 'joined' if bot.check_in_room(config, room_id) else 'not joined'
+
     return {
-        'status': 'joined' if bot.check_in_room(config, room_id) else 'not joined'
+        'status': status
     }
 
 

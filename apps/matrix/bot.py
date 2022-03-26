@@ -11,6 +11,7 @@ from apps.home.models import UserAccountModel, MatrixRoomModel
 from apps.matrix.render import jinja_env, TEMPLATE
 from apps.handlers.discord import DiscordWebhookHandler
 from apps.types import MatrixConfig
+from apps.helpers import get_pending_invitation_key, get_invitation_incident_key
 
 
 def build_msg(msg, fallback_msg):
@@ -35,18 +36,6 @@ async def get_client(config: MatrixConfig) -> Client:
     return Client(config.user_id, base_url=config.homeserver, token=config.access_token)
 
 
-PENDING_INVITATIONS_PREFIX = "pending_invitations"
-INCIDENTS_CACHE_KEY_PREFIX = "invitation_incident"
-
-
-def _get_pending_invitation_key(key: str) -> str:
-    return f"{PENDING_INVITATIONS_PREFIX}:{key}"
-
-
-def _get_invitation_incident_key(user_id: str, room_id: str) -> str:
-    return f"{INCIDENTS_CACHE_KEY_PREFIX}:{user_id}:{room_id}"
-
-
 async def joinserver(config: MatrixConfig) -> None:
     client = await get_client(config)
     redis_client = get_redis_client()
@@ -56,7 +45,7 @@ async def joinserver(config: MatrixConfig) -> None:
     @client.on(EventType.ROOM_POWER_LEVELS)
     async def handle_power_level_invites(event):
 
-        pending_invitation = _get_pending_invitation_key(event.room_id)
+        pending_invitation = get_pending_invitation_key(event.room_id)
         logging.debug(f"{event.json()}")
         inviter = redis_client.get(pending_invitation)
         if not inviter:
@@ -70,8 +59,8 @@ async def joinserver(config: MatrixConfig) -> None:
             await client.leave_room(room_id, reason=f"{inviter} is not admin, not allowed to invite me in this room.")
 
             # Ban the user from inviting the bot for 1h.
-            redis_client.set(_get_invitation_incident_key(inviter, room_id), "banned")
-            redis_client.expire(_get_invitation_incident_key(inviter, room_id), 60 * 60)
+            redis_client.set(get_invitation_incident_key(inviter, room_id), "banned")
+            redis_client.expire(get_invitation_incident_key(inviter, room_id), 60 * 60)
         else:
             logging.info("Invitation accepted")
         redis_client.delete(pending_invitation)
@@ -87,14 +76,14 @@ async def joinserver(config: MatrixConfig) -> None:
                 continue
             try:
                 logging.debug(f"{event.content}")
-                if redis_client.ttl(_get_invitation_incident_key(event.sender, state.room_id)) > -1:
+                if redis_client.ttl(get_invitation_incident_key(event.sender, state.room_id)) > -1:
                     await client.leave_room(state.room_id,
                                             reason=f"Can't accept invitation, {event.sender} is blocked")
                     continue
 
                 if not event.content.is_direct:
                     # set invitation for review
-                    review_key = _get_pending_invitation_key(state.room_id)
+                    review_key = get_pending_invitation_key(state.room_id)
                     logging.info(f"setting invitation for review: {review_key}")
                     redis_client.set(review_key, event.sender)
                 else:
