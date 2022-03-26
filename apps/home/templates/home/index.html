@@ -73,8 +73,6 @@
 }
 
 
-
-
 </style>
 {% if user.is_authenticated %}
 <div class="px-4 py-5 my-5 text-center">
@@ -105,15 +103,41 @@
     </div>
 </div>
 {% else %}
-<div class="px-4 py-5 my-5 text-center">
-    <h1 class="display-5 fw-bold">Matrix-Webhooks</h1>
+<div class="px-4 pt-5 my-5 text-center border-bottom">
+    <h1 class="display-4 fw-bold">Matrix-Webhooks</h1>
     <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Low efforts discord-compatible webhooks for your Matrix rooms</p>
-        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-            <a class="btn btn-bd-hero-login d-lg-inline-block my-2 my-md-0 ms-md-3 mb-3 me-md-3"
-               data-bs-toggle="modal" data-bs-target="#loginModal">
+        <p class="lead mb-4">Rich and Embedded webhooks messages for your Matrix rooms</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
+            <a class="btn btn-bd-hero-login d-lg-inline-block my-2 my-md-0 ms-md-3 mb-3 me-md-3" data-bs-toggle="modal"
+               data-bs-target="#loginModal">
                 Sign-in
             </a>
+        </div>
+    </div>
+    <div class="overflow-hidden" style="max-height: 56vh;">
+        <div class="container px-5">
+            <img src="{% static 'img/matrix-embed.png' %}" class="img-fluid border rounded-3 shadow-lg mb-4"
+                 alt="Example image" loading="lazy"
+                 height="500">
+        </div>
+    </div>
+</div>
+<h2 class="pb-2 border-bottom">Features</h2>
+<div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
+    <div class="col d-flex align-items-start">
+        <div>
+            <h2>Embedded Messages</h2>
+            <p>Discord compatible webhooks makes it easy to migrate from Discord to Matrix.
+                It enables you to send well <strong>structured</strong> and <strong>rich</strong> messages that you can
+                customize.
+            </p>
+        </div>
+    </div>
+    <div class="col d-flex align-items-start">
+        <div>
+            <h2>Easy Integrations</h2>
+            <p>Support webhooks from github, gitlab, grafana</p>
+            <p>Check roadmap.</p>
         </div>
     </div>
 </div>
@@ -148,10 +172,6 @@
         code.parentNode.insertBefore(button, code);
     }
 });
-
-
-
-
 
 </script>
 {% endblock %}

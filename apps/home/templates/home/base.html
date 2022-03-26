@@ -1,10 +1,15 @@
 {% extends 'home/bootstrap.html' %}
 
 {% load bootstrap5 %}
-
+{% load static %}
 {% block bootstrap5_content %}
 <head>
     <title>{% block title %}Matrix-Webhooks{% endblock %}</title>
+    <meta property="og:title" content="Matrix Webhooks"/>
+    <meta property="og:description" content="Rich and Embedded webhooks messages for your Matrix rooms"/>
+    <meta property="og:url" content="https://matrix-webhooks.com"/>
+    <meta property="og:image"
+          content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/matrix-embed.png' %}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 </head>
 <style>
@@ -54,6 +59,7 @@
 
 
 
+
 </style>
 {% include "home/signin_modal.html" %}
 
@@ -67,8 +73,15 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav d-flex">
                 <li class="nav-item">
-                    <a class="nav-link" href="/api/v1/docs">Docs</a>
+                    <a class="nav-link" href="/doc">Get Started</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/api/v1/docs">API Docs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/about">About</a>
+                </li>
+
             </ul>
         </div>
         {% if user.is_authenticated %}
@@ -96,6 +109,66 @@
     {% endif %}
 
     {% block content %}(no content){% endblock %}
+    <footer class="py-3 my-4">
+        <div class="row row-cols-5">
+            <div class="col"></div>
+            <div class="col">
+                <h5>Matrix-Webhooks.com</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a href="{% url 'home' %}" class="nav-link p-0 text-muted">Home</a></li>
+                    <li class="nav-item mb-2"><a href="/doc" class="nav-link p-0 text-muted">Get Started</a></li>
+                    <li class="nav-item mb-2"><a href="/api/v1/docs" class="nav-link p-0 text-muted">API</a></li>
+                    <li class="nav-item mb-2"><a href="/about" class="nav-link p-0 text-muted">About</a></li>
+                </ul>
+            </div>
+            <div class="col">
+                <h5>Legal</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a href="{% static 'privacy-policy.html' %}" class="nav-link p-0 text-muted">Privacy
+                        Policy</a>
+                    </li>
+                    <li class="nav-item mb-2"><a href="{% static 'cookies-policy.html' %}" class="nav-link p-0 text-muted">Cookies
+                        Policy</a>
+                    </li>
+                    <li class="nav-item mb-2"><a href="/doc" class="nav-link p-0 text-muted">Copyright Notice</a></li>
+                    <li class="nav-item mb-2"><a href="{% static 'toc.html' %}" class="nav-link p-0 text-muted">Terms And
+                        Conditions</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col">
+                <h5>Join Official Room</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2"><a
+                            href="https://matrix.to/#/#matrix-webhooks.com:matrix.org"
+                            target="_blank"
+                            class="nav-link p-0 text-muted">Matrix Space</a></li>
+                    <li class="nav-item mb-2"><a
+                            href="https://matrix.to/#/#matrix-webhooks-general:matrix.org"
+                            target="_blank"
+                            class="nav-link p-0 text-muted">General</a></li>
+                    <li class="nav-item mb-2"><a
+                            href="https://matrix.to/#/#matrix-webhooks-announcements:matrix.org"
+                            target="_blank"
+                            class="nav-link p-0 text-muted">Announcements</a></li>
+                    <li class="nav-item mb-2"><a
+                            href="hhttps://matrix.to/#/#matrix-webhooks-support:matrix.org"
+                            target="_blank"
+                            class="nav-link p-0 text-muted">Support</a></li>
+                </ul>
+            </div>
+            <div class="col">
+                <a class="nav-link p-3 text-muted" href="https://matrix.org" target="_blank">
+                    <img src="{% static 'img/made-for-matrix.png' %}" height="80px"/>
+                </a>
+            </div>
+        </div>
+        <div class="">
+            <p class="text-center text-muted">
+                © {% now "Y" %} Skander Ben Mahmoud, exclusive operator of matrix-webhooks.com
+            </p>
+        </div>
+    </footer>
 </div>
 <script defer data-domain="matrix-webhooks.com" src="/js/script.js"></script>
 
