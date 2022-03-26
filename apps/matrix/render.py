@@ -7,6 +7,7 @@ TEMPLATE = """
     {% endif %}
     {% if context.embeds %}
     {% for e in context.embeds %}
+    <strong>{{ "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"|colorize(e.color) }}</strong>
         <blockquote>
         <br/>
         <!-- author -->
@@ -32,14 +33,18 @@ TEMPLATE = """
             {{ e.timestamp|strong }}
         {% endif %}
         </blockquote>
-        {{ "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"|colorize(e.color) }}
     {% endfor %}
     {% endif %}
 """
+
+# TODO: replace seperator by <hr> when supported.
+# TODO: color is not supported on hr
+# TODO: <hr color={{ e.color|to_hex_color }}/>
 
 
 jinja_env = SandboxedEnvironment()
 jinja_env.filters['md2html'] = filters.md2html
 jinja_env.filters['url'] = filters.url
 jinja_env.filters['colorize'] = filters.colorize
+jinja_env.filters['to_hex_color'] = filters.to_hex_color
 jinja_env.filters['strong'] = filters.strong

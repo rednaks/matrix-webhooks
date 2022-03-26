@@ -20,5 +20,12 @@ def colorize(text, color=None):
     return f'<font color="{css_color}">{text}</font>'
 
 
+def to_hex_color(color):
+    try:
+        return f'#{hex(int(color))[2:]}'
+    except:
+        return color
+
+
 def strong(text):
     return f'<strong>{text}</strong>'
