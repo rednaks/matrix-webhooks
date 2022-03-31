@@ -187,10 +187,11 @@ from MatrixWebhooks.custom_settings import *  # noqa
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 CONSTANCE_DATABASE_CACHE_BACKEND = 'default'
 
-mw_logger = logging.getLogger()
+LOGGER_NAME = 'matrix-webhooks'
+mw_logger = logging.getLogger(LOGGER_NAME)
 mw_logger.setLevel(logging.DEBUG if DEBUG else logging.INFO)
 handler = logging.StreamHandler(sys.stdout)
 
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter('%(asctime)s - %(name)s - lvl=%(levelname)s - %(message)s')
 handler.setFormatter(formatter)
 mw_logger.addHandler(handler)

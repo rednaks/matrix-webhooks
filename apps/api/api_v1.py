@@ -1,4 +1,5 @@
 from django.http import HttpRequest
+from django.conf import settings
 from ninja import NinjaAPI
 
 from apps.api.decorators import ratelimit, check_notify_permission
@@ -11,6 +12,8 @@ from apps.matrix import bot
 from typing import Any, Dict
 import json
 import logging
+
+logger = logging.getLogger(settings.LOGGER_NAME)
 
 from apps.helpers import get_redis_client, get_pending_invitation_key
 
@@ -26,10 +29,10 @@ def _handle_webhook(room_id: str, webhook_payload: Dict[Any, Any], request: Http
         headers = request.headers
         payload = handler.parse(webhook_payload, headers=headers)
     except Exception as e:
-        logging.warning(f'unable to parse')
-        logging.warning(f'payload: {webhook_payload}')
-        logging.warning(f'source: {source.name}')
-        logging.warning(f'headers: {headers}')
+        logger.warning(f'unable to parse')
+        logger.warning(f'payload: {webhook_payload}')
+        logger.warning(f'source: {source.name}')
+        logger.warning(f'headers: {headers}')
         raise e
 
     config = get_matrix_config()
@@ -78,7 +81,7 @@ def status(request, user_token: str, room_id: str):
 @api.get('/rooms/{user_token}/', response=RoomsList)
 @ratelimit
 def rooms(request, user_token: str) -> RoomsList:
-    logging.info(f"user: {request.auth}")
+    logger.info(f"user: {request.auth}")
     return UserAccountModel.objects.get(user=request.auth)
 
 

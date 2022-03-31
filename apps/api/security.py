@@ -1,12 +1,14 @@
 import logging
 from typing import Optional, Any
 
+from django.conf import settings
 from django.http import HttpRequest
 from django.urls import resolve
 
 from ninja.security.apikey import APIKeyBase
 from apps.home.models import UserAccountModel
 
+logger = logging.getLogger(settings.LOGGER_NAME)
 
 class APIKeyPath(APIKeyBase):
     openapi_type: str = 'apikey'
@@ -21,4 +23,4 @@ class APIKeyPath(APIKeyBase):
             user = UserAccountModel.objects.get(token=key).user
             return user
         except UserAccountModel.DoesNotExist:
-            logging.info("User not found")
+            logger.info("User not found")
