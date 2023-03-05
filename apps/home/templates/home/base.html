@@ -114,13 +114,20 @@
 {% block bootstrap5_after_content %}
 <footer class="footer mt-auto py-3">
   <div class="container">
-    <div class="row row-cols-4">
+    <div class="row row-cols-5">
       <div class="col">
         <h5>Matrix-Webhooks.com</h5>
         <ul class="nav flex-column">
           <li class="nav-item mb-2"><a href="{% url 'home' %}" class="nav-link p-0 text-muted">Home</a></li>
           <!--<li class="nav-item mb-2"><a href="/doc" class="nav-link p-0 text-muted">Get Started</a></li>-->
           <li class="nav-item mb-2"><a href="/api/v1/docs" class="nav-link p-0 text-muted">API</a></li>
+          <!-- <li class="nav-item mb-2"><a href="/about" class="nav-link p-0 text-muted">About</a></li> -->
+        </ul>
+      </div>
+      <div class="col">
+        <h5>Social</h5>
+        <ul class="nav flex-column">
+          <li class="nav-item mb-2"><a href="https://github.com/rednaks/matrix-webhooks" class="nav-link p-0 text-muted">Github</a></li>
           <!-- <li class="nav-item mb-2"><a href="/about" class="nav-link p-0 text-muted">About</a></li> -->
         </ul>
       </div>
@@ -155,7 +162,7 @@
               target="_blank"
               class="nav-link p-0 text-muted">Announcements</a></li>
           <li class="nav-item mb-2"><a
-              href="hhttps://matrix.to/#/#matrix-webhooks-support:matrix.org"
+              href="https://matrix.to/#/#matrix-webhooks-support:matrix.org"
               target="_blank"
               class="nav-link p-0 text-muted">Support</a></li>
         </ul>
