@@ -16,6 +16,9 @@
                   Sign-Up
                   </button>
                 </div>
+                {% if config.FRIENDLY_CAPTCHA_ENABLED %}
+                <div class="frc-captcha" data-sitekey="{{ config.FRIENDLY_CAPTCHA_SITE_KEY }}" data-solution-field-name="captcha_solution"></div>
+                {% endif %}
             </form>
         </div>
     </div>
