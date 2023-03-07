@@ -8,6 +8,7 @@ CONSTANCE_CONFIG = {
     "INVITATION_ONLY": (False, "Invitation only signups", bool),
     "INVITATION_CODE": ("", "Code Signup", str),
     "INVITATIONS": (0, "Number of invitations", int),
+    "FRIENDLY_CAPTCHA_ENABLED": (False, "Enable Captcha", bool),
     "FRIENDLY_CAPTCHA_KEY": (
         "",
         "Friendly Captcha Secret Key",
@@ -30,7 +31,11 @@ CONSTANCE_CONFIG_FIELDSETS = OrderedDict(
             ),
         },
         "Captcha Settings": {
-            "fields": ("FRIENDLY_CAPTCHA_KEY", "FRIENDLY_CPATCH_SITE_KEY")
+            "fields": (
+                "FRIENDLY_CAPTCHA_ENABLED",
+                "FRIENDLY_CAPTCHA_KEY",
+                "FRIENDLY_CAPTCHA_SITE_KEY",
+            )
         },
     }
 )
