@@ -19,7 +19,7 @@ import environ
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DEBUG=(bool, False))
+env = environ.Env(DEBUG=(bool, False), TEST_ENV=(bool, False))
 
 environ.Env.read_env(str(BASE_DIR / ".env"))
 
@@ -77,6 +77,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "constance.context_processors.config",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
@@ -113,7 +114,7 @@ CACHES = {
     }
 }
 
-TEST_ENV = False
+TEST_ENV = env("TEST_ENV")
 if TEST_ENV:
     DATABASES = {
         "default": {
