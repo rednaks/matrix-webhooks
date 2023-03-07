@@ -10,6 +10,9 @@
 <meta property="og:image"
       content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/matrix-embed.png' %}"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+<script type="module" src="https://unpkg.com/friendly-challenge@0.9.11/widget.module.min.js" async defer></script>
+<script nomodule src="https://unpkg.com/friendly-challenge@0.9.11/widget.min.js" async defer></script>
+
 {% endblock %}
 {% block bootstrap5_content %}
 <style>

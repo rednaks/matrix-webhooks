@@ -36,6 +36,9 @@
                         We'll send you a magic link for a no-password sign up.
                     </div>
                     {% endif %}
+                    {% if config.FRIENDLY_CAPTCHA_ENABLED %}
+                    <div class="frc-captcha" data-sitekey="{{ config.FRIENDLY_CAPTCHA_SITE_KEY }}" data-solution-field-name="captcha_solution"></div>
+                    {% endif %}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
