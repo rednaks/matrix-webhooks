@@ -378,19 +378,20 @@ testing = ["coverage[toml] (>=5.0a4)", "pytest (>=4.6.11)"]
 
 [[package]]
 name = "django-ninja"
-version = "0.17.0"
+version = "0.21.0"
 description = "Django Ninja - Fast Django REST framework"
 category = "main"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 
 [package.dependencies]
 Django = ">=2.2"
 pydantic = ">=1.6,<2.0.0"
 
 [package.extras]
-doc = ["mkdocs", "mkdocs-material", "markdown-include"]
-test = ["pytest", "pytest-cov", "pytest-django", "pytest-asyncio", "black", "isort", "flake8", "mypy (==0.930)", "django-stubs"]
+dev = ["pre-commit"]
+doc = ["mkdocs", "mkdocs-material", "markdown-include", "mkdocstrings"]
+test = ["pytest", "pytest-cov", "pytest-django", "pytest-asyncio", "psycopg2-binary", "black", "isort", "flake8", "mypy (==0.931)", "django-stubs"]
 
 [[package]]
 name = "django-picklefield"
@@ -1619,7 +1620,7 @@ testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = "~3.9"
-content-hash = "4580ff5854412868ae0efb5be7316e0cb7f9fb1df9fa03be068f78d07e579764"
+content-hash = "c472855bf799bfa32871aa82140c835f9303f29e0b879393a80b9f3a180f32a3"
 
 [metadata.files]
 aiofiles = []
