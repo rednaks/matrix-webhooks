@@ -25,12 +25,12 @@ api = NinjaAPI(title="Matrix Webhooks API", version="1", auth=APIKeyPath())
 def _handle_webhook(
     room_id: str,
     webhook_payload: Dict[Any, Any],
-    request: HttpRequest = None,
+    request: HttpRequest,
     source: AvailableSources = AvailableSources.DISCORD,
 ):
     handler = get_handler(source.name)()
+    headers = request.headers
     try:
-        headers = request.headers
         payload = handler.parse(webhook_payload, headers=headers)
     except Exception as e:
         logger.warning(f"unable to parse")
