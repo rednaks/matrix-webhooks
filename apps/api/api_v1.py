@@ -48,9 +48,9 @@ def _handle_webhook(
 
     try:
         # update api usage metrics
-        update_api_usage(request.user, room_id)
+        update_api_usage(request.auth, room_id)
     except Exception as e:
-        logging.warning(f"Couldn't update api usage: {e}", exc_info=True)
+        logger.warning(f"Couldn't update api usage: {e}", exc_info=True)
 
     handler = get_handler(source.name)()
     headers = request.headers
