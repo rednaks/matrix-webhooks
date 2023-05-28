@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 from typing import Any, Dict
 
 from django.conf import settings
@@ -11,7 +12,7 @@ from apps.api.exception_handlers import add_exception_handlers
 from apps.api.schemas import RoomsList, Source, WebhookPayload
 from apps.api.security import APIKeyPath
 from apps.handlers import AvailableSources, get_handler
-from apps.home.models import UserAccountModel
+from apps.home.models import MatrixRoomModel, UserAccountModel, WebhookMetrics
 from apps.matrix import bot
 
 logger = logging.getLogger(settings.LOGGER_NAME)
@@ -22,12 +23,35 @@ from apps.matrix.utils import get_matrix_config
 api = NinjaAPI(title="Matrix Webhooks API", version="1", auth=APIKeyPath())
 
 
+def update_api_usage(user: settings.AUTH_USER_MODEL, room_id: str) -> None:
+    current_time = datetime.now().replace(second=0, microsecond=0)
+    try:
+        room = MatrixRoomModel.objects.get(room_id=room_id)
+    except MatrixRoomModel.DoesNotExist:
+        # should I log an error or a success ?
+        return
+
+    try:
+        api_metrics = WebhookMetrics.objects.get(ts=current_time, user=user, room=room)
+        api_metrics.count += 1
+        api_metrics.save()
+    except WebhookMetrics.DoesNotExist:
+        WebhookMetrics.objects.create(room=room, user=user, count=1, ts=current_time)
+
+
 def _handle_webhook(
     room_id: str,
     webhook_payload: Dict[Any, Any],
     request: HttpRequest,
     source: AvailableSources = AvailableSources.DISCORD,
 ):
+
+    try:
+        # update api usage metrics
+        update_api_usage(request.user, room_id)
+    except Exception as e:
+        logging.warning(f"Couldn't update api usage: {e}", exc_info=True)
+
     handler = get_handler(source.name)()
     headers = request.headers
     try:
@@ -38,8 +62,6 @@ def _handle_webhook(
         logger.warning(f"source: {source.name}")
         logger.warning(f"headers: {headers}")
         raise e
-
-    # log notification
 
     config = get_matrix_config()
     bot.send(config, room_id, payload)
