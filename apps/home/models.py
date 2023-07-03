@@ -1,11 +1,19 @@
-from django.db import models
-from django.conf import settings
-import secrets
 import random
+import secrets
+
+from django.conf import settings
+from django.db import models
 
 
 class MatrixRoomModel(models.Model):
     room_id = models.CharField(max_length=512, unique=True)
+
+
+class WebhookMetrics(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    room = models.ForeignKey(MatrixRoomModel, on_delete=models.CASCADE)
+    ts = models.DateTimeField(auto_now_add=True)
+    count = models.IntegerField(default=0)
 
 
 # TODO: caching ?

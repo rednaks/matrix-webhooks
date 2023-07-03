@@ -107,6 +107,10 @@ DATABASES = {
 REDIS_HOST = env("REDIS_HOST")
 REDIS_PORT = env("REDIS_PORT")
 
+
+TEST_ENV = env("TEST_ENV")
+
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
@@ -114,7 +118,6 @@ CACHES = {
     }
 }
 
-TEST_ENV = env("TEST_ENV")
 if TEST_ENV:
     DATABASES = {
         "default": {
@@ -122,7 +125,12 @@ if TEST_ENV:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+            "LOCATION": "/tmp/mwh_dev_cache",
+        }
+    }
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
